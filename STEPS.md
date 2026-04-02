@@ -13,7 +13,7 @@
 - `Cmd/Ctrl + Shift + P` -> `Python: Select Interpreter`
 - choose `.venv/bin/python` (macOS/Linux) or `.venv\Scripts\python.exe` (Windows)
 
-## If you notice an issue or get an error, sometimes it is just the issue with the terminal. close the terminal and open a new terminal and run the steps 
+## If you notice an issue or get an error, sometimes it is just the iss`ue with the terminal. close the terminal and open a new terminal and run the steps 
 
 
 ## What the script does
