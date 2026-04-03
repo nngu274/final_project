@@ -195,3 +195,4 @@ elif st.session_state["role"] == "Employee":
                 st.dataframe(products, use_container_width=True)
             else:
                 st.info("No products available.")
+

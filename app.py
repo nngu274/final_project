@@ -180,3 +180,18 @@ if st.session_state["role"] == "Shop Owner":
                     st.rerun()
             else:
                 st.info("No products available to delete.")
+
+elif st.session_state["role"] == "Employee":
+        tab1, tab2, tab3, tab4 = st.tabs([
+            "View Catalog",
+            "Log Sales",
+            "Flag Low Stock",
+            "Training"
+        ])
+
+        with tab1:
+            st.subheader("Current Catalog")
+            if products:
+                st.dataframe(products, use_container_width=True)
+            else:
+                st.info("No products available.")
