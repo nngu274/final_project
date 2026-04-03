@@ -4,7 +4,7 @@ from pathlib import Path
 from datetime import datetime
 import uuid
 
-st.set_page_config(page_title="Bakery Operations Portal", layout="centered")
+st.set_page_config(page_title="Whimsical Sweets Operations Portal", layout="centered")
 
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
@@ -55,7 +55,7 @@ def find_product_by_name(name):
     return None
 
 if not st.session_state["logged_in"]:
-    st.title("Bakery Operations Portal")
+    st.title("Whimsical Bakery Operations Portal")
 
     tab1, tab2 = st.tabs(["Log In", "Create Account"])
 
@@ -100,7 +100,7 @@ if not st.session_state["logged_in"]:
 
 
 else:
-    st.title("Bakery Operations Portal")
+    st.title("Whimsical Sweets Operations Portal")
     st.write(f"Logged in as: **{st.session_state['user']['email']}**")
     st.write(f"Role: **{st.session_state['role']}**")
 
