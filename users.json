@@ -4,5 +4,17 @@
     "email": "nhinhi@gmail.com",
     "password": "frenchfry",
     "role": "Shop Owner"
+  },
+  {
+    "id": "7885492d-4e60-4ced-b723-eb9cecb8eb1d",
+    "email": "mbehari@udel.edu",
+    "password": "1234",
+    "role": "Shop Owner"
+  },
+  {
+    "id": "a2e37ac3-0d55-422d-a916-4e0e88b67593",
+    "email": "mbehari@udel.edu",
+    "password": "1234",
+    "role": "Shop Owner"
   }
 ]
