@@ -55,7 +55,7 @@ def find_product_by_name(name):
     return None
 
 if not st.session_state["logged_in"]:
-    st.title("Whimsical Bakery Operations Portal")
+    st.title("Whimsical Sweets Operations Portal")
 
     tab1, tab2 = st.tabs(["Log In", "Create Account"])
 
