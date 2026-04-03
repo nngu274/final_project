@@ -16,5 +16,17 @@
     "email": "mbehari@udel.edu",
     "password": "1234",
     "role": "Shop Owner"
+  },
+  {
+    "id": "8f29ff96-2cd2-42eb-8d64-eeb4a22b0721",
+    "email": "aliceliu19808@gmail.com",
+    "password": "meow",
+    "role": "Employee"
+  },
+  {
+    "id": "1ccce1fd-3234-435d-a4ad-df0ff37dcd29",
+    "email": "aliceliu19808@gmail.com",
+    "password": "meow",
+    "role": "Employee"
   }
 ]
