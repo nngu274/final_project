@@ -196,3 +196,58 @@ elif st.session_state["role"] == "Employee":
             else:
                 st.info("No products available.")
 
+        with tab2:
+            st.subheader("Log Daily Sales")
+
+            if products:
+                sale_product_name = st.selectbox("Select Product Sold", [p["name"] for p in products], key="sale_product")
+                quantity_sold = st.number_input("Quantity Sold", min_value=1, step=1)
+
+                if st.button("Record Sale"):
+                    product = find_product_by_name(sale_product_name)
+
+                    if product:
+                        if quantity_sold <= product["stock"]:
+                            product["stock"] -= quantity_sold
+
+                            if product["stock"] <= 5:
+                                product["low_stock_flag"] = True
+
+                            sales_log.append({
+                                "id": str(uuid.uuid4()),
+                                "product_name": product["name"],
+                                "quantity_sold": quantity_sold,
+                                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            })
+
+                            save_products()
+                            save_sales()
+                            st.success("Sale recorded successfully.")
+                            st.rerun()
+                        else:
+                            st.error("Not enough stock available.")
+            else:
+                st.info("No products available for sales logging.")
+
+        with tab3:
+            st.subheader("Flag Items Running Dangerously Low")
+
+            low_items = [p for p in products if p["stock"] <= 5]
+
+            if low_items:
+                for item in low_items:
+                    st.warning(f"{item['name']} is low on stock. Only {item['stock']} left.")
+            else:
+                st.success("No low-stock items right now.")
+
+        with tab4:
+            st.subheader("New Employee Training")
+            st.markdown("""
+            ### Bakery Basics
+            - Always rotate stock using first-in, first-out.
+            - Record sales accurately at the end of each shift.
+            - Flag low-stock items before they run out.
+            - Keep display shelves neat and labeled correctly.
+            - Report damaged or stale products to the Shop Owner.
+            """)
+
