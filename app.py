@@ -72,12 +72,12 @@ if not st.session_state["logged_in"]:
         for user in users:
             if new_email == user["email"]:
                 st.error("There is a user with this email already!")
-                time.sleep(5.0)
+                time.sleep(0.5)
                 st.rerun
         if st.button("Create Account", use_container_width=True):
             if new_email == '' or new_password == '':
                 st.error("Please fill out your information in order to register.")
-                time.sleep(5.0)
+                time.sleep(0.5)
                 st.rerun()
             else:
                 users.append({
@@ -113,9 +113,20 @@ if st.session_state["role"] == "Shop Owner":
     with tab1:
             st.subheader("Current Shelf Catalog")
             if products:
-                st.dataframe(products, use_container_width=True)
-            else:
-                st.info("No products in the system yet.")
+                with st.container(border=True):
+                    st.metric(label="All Products", value=len(products))
+                    if len(products) > 0:
+                        for product in products:
+                            with st.expander(product.get('name')):
+                                st.write(f"**ID:** {product.get('id')}")
+                                st.write(f"**Name:** {product.get('name')}")
+                                st.write(f"**Price:** {product.get('price')}")
+                                st.write(f"**Stock**: {product.get('stock')}")
+                                st.write(f"**Shelf**: {product.get('shelf')}")
+                                st.write(f"**Status**: {product.get('low_stock_flag')}")
+                    else:
+                        st.info("No Products Yet!")
+
 
     with tab2:
             st.subheader("Add New Product")
@@ -212,7 +223,7 @@ elif st.session_state["role"] == "Employee":
                                 if product["stock"] <= 5:
                                     product["low_stock_flag"] = True
 
-                                sales_log.append({
+                                sales_log.f({
                                     "id": str(uuid.uuid4()),
                                     "product_name": product["name"],
                                     "quantity_sold": quantity_sold,
@@ -224,11 +235,9 @@ elif st.session_state["role"] == "Employee":
                                 with sales_path.open("w", encoding="utf-8") as f:
                                     json.dump(sales_log, f, indent=2)
                                 st.success("Sale recorded successfully.")
-                                time.sleep(5.0)
                                 st.rerun()
                         else:
                             st.error("Not enough stock available.")
-                            time.sleep(5.0)
                             st.rerun()
             else:
                 st.info("No products available for sales logging.")
