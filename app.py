@@ -68,14 +68,21 @@ if not st.session_state["logged_in"]:
         new_email = st.text_input("New Email")
         new_password = st.text_input("New Password", type="password")
         new_role = st.selectbox("Role", ["Shop Owner", "Employee"])
-
+        for user in users:
+            if new_email == user["email"]:
+                st.warning("There is a user with this email already!")
+                st.rerun()
         if st.button("Create Account", use_container_width=True):
-            users.append({
-                "id": str(uuid.uuid4()),
-                "email": new_email,
-                "password": new_password,
-                "role": new_role
-            })
+            if new_email == None or new_password == None:
+                st.warning("Please fill out your information in order to register.")
+                st.rerun()
+            else:
+                users.append({
+                    "id": str(uuid.uuid4()),
+                    "email": new_email,
+                    "password": new_password,
+                    "role": new_role
+                })
             with users_path.open("w", encoding="utf-8") as f:
                 json.dump(users, f, indent=2)
             st.success("Account created successfully.")
