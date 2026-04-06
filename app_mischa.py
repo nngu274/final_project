@@ -36,18 +36,6 @@ if sales_path.exists():
 else:
     sales_log = []
 
-def save_products():
-    with products_path.open("w", encoding="utf-8") as f:
-        json.dump(products, f, indent=2)
-
-def save_users():
-    with users_path.open("w", encoding="utf-8") as f:
-        json.dump(users, f, indent=2)
-
-def save_sales():
-    with sales_path.open("w", encoding="utf-8") as f:
-        json.dump(sales_log, f, indent=2)
-
 def find_product_by_name(name):
     for product in products:
         if product["name"] == name:
@@ -94,7 +82,8 @@ if not st.session_state["logged_in"]:
                 "password": new_password,
                 "role": new_role
             })
-            save_users()
+            with users_path.open("w", encoding="utf-8") as f:
+                json.dump(users, f, indent=2)
             st.success("Account created successfully.")
             st.rerun()
 
@@ -142,7 +131,8 @@ if st.session_state["role"] == "Shop Owner":
                     "shelf": shelf,
                     "low_stock_flag": False
                 })
-                save_products()
+                with products_path.open("w", encoding="utf-8") as f:
+                    json.dump(products, f, indent=2)
                 st.success("Product added successfully.")
                 st.rerun()
 
@@ -151,7 +141,11 @@ if st.session_state["role"] == "Shop Owner":
 
             if products:
                 selected_name = st.selectbox("Select Product", [p["name"] for p in products], key="owner_edit")
-                product = find_product_by_name(selected_name)
+                for product in products:
+                    if product["name"] == selected_name:
+                        product
+                    else:
+                        None
 
                 if product:
                     new_price = st.number_input("Update Price", min_value=0.0, value=float(product["price"]), step=0.25)
@@ -162,7 +156,8 @@ if st.session_state["role"] == "Shop Owner":
                         product["stock"] += restock_amount
                         if product["stock"] > 5:
                             product["low_stock_flag"] = False
-                        save_products()
+                        with products_path.open("w", encoding="utf-8") as f:
+                            json.dump(products, f, indent=2)
                         st.success("Product updated.")
                         st.rerun()
             else:
@@ -175,7 +170,8 @@ if st.session_state["role"] == "Shop Owner":
                 delete_name = st.selectbox("Choose Product to Delete", [p["name"] for p in products], key="delete_product")
                 if st.button("Delete Product"):
                     products[:] = [p for p in products if p["name"] != delete_name]
-                    save_products()
+                    with products_path.open("w", encoding="utf-8") as f:
+                        json.dump(products, f, indent=2)
                     st.success("Product deleted.")
                     st.rerun()
             else:
