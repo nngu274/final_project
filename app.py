@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from datetime import datetime
 import uuid
+import time
 
 st.set_page_config(page_title="Whimsical Sweets Operations Portal", layout="centered")
 
@@ -70,11 +71,13 @@ if not st.session_state["logged_in"]:
         new_role = st.selectbox("Role", ["Shop Owner", "Employee"])
         for user in users:
             if new_email == user["email"]:
-                st.warning("There is a user with this email already!")
-                st.rerun()
+                st.error("There is a user with this email already!")
+                time.sleep(5.0)
+                st.rerun
         if st.button("Create Account", use_container_width=True):
-            if new_email == None or new_password == None:
-                st.warning("Please fill out your information in order to register.")
+            if new_email == '' or new_password == '':
+                st.error("Please fill out your information in order to register.")
+                time.sleep(5.0)
                 st.rerun()
             else:
                 users.append({
@@ -202,33 +205,31 @@ elif st.session_state["role"] == "Employee":
 
                 if st.button("Record Sale"):
                     for product in products:
-                        if product["name"] == product:
-                            product = sale_product_name
-                        else:
-                            None
+                        if product["name"] == sale_product_name:
+                            if quantity_sold <= product["stock"]:
+                                product["stock"] -= quantity_sold
 
-                    if product:
-                        if quantity_sold <= product["stock"]:
-                            product["stock"] -= quantity_sold
+                                if product["stock"] <= 5:
+                                    product["low_stock_flag"] = True
 
-                            if product["stock"] <= 5:
-                                product["low_stock_flag"] = True
+                                sales_log.append({
+                                    "id": str(uuid.uuid4()),
+                                    "product_name": product["name"],
+                                    "quantity_sold": quantity_sold,
+                                    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                                })
 
-                            sales_log.append({
-                                "id": str(uuid.uuid4()),
-                                "product_name": product["name"],
-                                "quantity_sold": quantity_sold,
-                                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                            })
-
-                            with products_path.open("w", encoding="utf-8") as f:
-                                json.dump(products, f, indent=2)
-                            with sales_path.open("w", encoding="utf-8") as f:
-                                json.dump(sales_log, f, indent=2)
-                            st.success("Sale recorded successfully.")
-                            st.rerun()
+                                with products_path.open("w", encoding="utf-8") as f:
+                                    json.dump(products, f, indent=2)
+                                with sales_path.open("w", encoding="utf-8") as f:
+                                    json.dump(sales_log, f, indent=2)
+                                st.success("Sale recorded successfully.")
+                                time.sleep(5.0)
+                                st.rerun()
                         else:
                             st.error("Not enough stock available.")
+                            time.sleep(5.0)
+                            st.rerun()
             else:
                 st.info("No products available for sales logging.")
 
