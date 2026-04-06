@@ -195,7 +195,7 @@ elif st.session_state["role"] == "Employee":
 
                 if st.button("Record Sale"):
                     for product in products:
-                        if product["name"] == name:
+                        if product["name"] == product:
                             product = sale_product_name
                         else:
                             None
