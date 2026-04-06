@@ -214,7 +214,7 @@ elif st.session_state["role"] == "Employee":
                                 if product["stock"] <= 5:
                                     product["low_stock_flag"] = True
 
-                                sales_log({
+                                sales_log.append({
                                     "id": str(uuid.uuid4()),
                                     "product_name": product["name"],
                                     "quantity_sold": quantity_sold,
