@@ -3,7 +3,6 @@ import json
 from pathlib import Path
 from datetime import datetime
 import uuid
-import time
 
 st.set_page_config(page_title="Whimsical Sweets Operations Portal", layout="centered")
 
@@ -72,13 +71,9 @@ if not st.session_state["logged_in"]:
         for user in users:
             if new_email == user["email"]:
                 st.error("There is a user with this email already!")
-                time.sleep(0.5)
-                st.rerun
         if st.button("Create Account", use_container_width=True):
             if new_email == '' or new_password == '':
                 st.error("Please fill out your information in order to register.")
-                time.sleep(0.5)
-                st.rerun()
             else:
                 users.append({
                     "id": str(uuid.uuid4()),
@@ -149,7 +144,6 @@ if st.session_state["role"] == "Shop Owner":
                 with products_path.open("w", encoding="utf-8") as f:
                     json.dump(products, f, indent=2)
                 st.success("Product added successfully.")
-                st.rerun()
 
     with tab3:
             st.subheader("Update Price or Restock Inventory")
@@ -173,8 +167,6 @@ if st.session_state["role"] == "Shop Owner":
                             product["low_stock_flag"] = False
                         with products_path.open("w", encoding="utf-8") as f:
                             json.dump(products, f, indent=2)
-                        st.success("Product updated.")
-                        st.rerun()
             else:
                 st.info("No products available to update.")
 
@@ -188,7 +180,6 @@ if st.session_state["role"] == "Shop Owner":
                     with products_path.open("w", encoding="utf-8") as f:
                         json.dump(products, f, indent=2)
                     st.success("Product deleted.")
-                    st.rerun()
             else:
                 st.info("No products available to delete.")
 
@@ -223,7 +214,7 @@ elif st.session_state["role"] == "Employee":
                                 if product["stock"] <= 5:
                                     product["low_stock_flag"] = True
 
-                                sales_log.f({
+                                sales_log({
                                     "id": str(uuid.uuid4()),
                                     "product_name": product["name"],
                                     "quantity_sold": quantity_sold,
@@ -235,12 +226,9 @@ elif st.session_state["role"] == "Employee":
                                 with sales_path.open("w", encoding="utf-8") as f:
                                     json.dump(sales_log, f, indent=2)
                                 st.success("Sale recorded successfully.")
-                                st.rerun()
-                        else:
-                            st.error("Not enough stock available.")
-                            st.rerun()
-            else:
-                st.info("No products available for sales logging.")
+                            else:
+                                st.error("Not enough stock available.")
+                                
 
         with tab3:
             st.subheader("Flag Items Running Dangerously Low")
