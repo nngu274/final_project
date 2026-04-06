@@ -36,12 +36,6 @@ if sales_path.exists():
 else:
     sales_log = []
 
-def find_product_by_name(name):
-    for product in products:
-        if product["name"] == name:
-            return product
-    return None
-
 if not st.session_state["logged_in"]:
     st.title("Whimsical Sweets Operations Portal")
 
@@ -200,7 +194,11 @@ elif st.session_state["role"] == "Employee":
                 quantity_sold = st.number_input("Quantity Sold", min_value=1, step=1)
 
                 if st.button("Record Sale"):
-                    product = find_product_by_name(sale_product_name)
+                    for product in products:
+                        if product["name"] == name:
+                            product = sale_product_name
+                        else:
+                            None
 
                     if product:
                         if quantity_sold <= product["stock"]:
@@ -216,8 +214,10 @@ elif st.session_state["role"] == "Employee":
                                 "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                             })
 
-                            save_products()
-                            save_sales()
+                            with products_path.open("w", encoding="utf-8") as f:
+                                json.dump(products, f, indent=2)
+                            with sales_path.open("w", encoding="utf-8") as f:
+                                json.dump(sales_log, f, indent=2)
                             st.success("Sale recorded successfully.")
                             st.rerun()
                         else:
