@@ -28,5 +28,17 @@
     "email": "aliceliu19808@gmail.com",
     "password": "meow",
     "role": "Employee"
+  },
+  {
+    "id": "7cba623f-6f82-4ae3-a7c1-8889353a7f3e",
+    "email": "user@udel.edu",
+    "password": "MISY350",
+    "role": "Shop Owner"
+  },
+  {
+    "id": "dd61a16c-d6de-401d-88a1-0036b3bc235e",
+    "email": "employee@udel.edu",
+    "password": "MISY350",
+    "role": "Employee"
   }
 ]

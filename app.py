@@ -4,25 +4,13 @@ from pathlib import Path
 from datetime import datetime
 import uuid
 
+from ui.session_manager import SessionManager
+from ui.auth_views import AuthView
+
 st.set_page_config(page_title="Whimsical Sweets Operations Portal", layout="centered")
 
-if "logged_in" not in st.session_state:
-    st.session_state["logged_in"] = False
-if "user" not in st.session_state:
-    st.session_state["user"] = None
-if "role" not in st.session_state:
-    st.session_state["role"] = None
-
-
-users_path = Path("users.json")
 products_path = Path("products.json")
 sales_path = Path("sales.json")
-
-if users_path.exists():
-    with users_path.open("r", encoding="utf-8") as f:
-        users = json.load(f)
-else:
-    users = []
 
 if products_path.exists():
     with products_path.open("r", encoding="utf-8") as f:
@@ -36,67 +24,22 @@ if sales_path.exists():
 else:
     sales_log = []
 
-if not st.session_state["logged_in"]:
-    st.title("Whimsical Sweets Operations Portal")
+session = SessionManager()
+session.initialize()
 
-    tab1, tab2 = st.tabs(["Log In", "Create Account"])
+if not session.is_logged_in():
+    auth_view = AuthView(session)
+    auth_view.render()
+    st.stop()
 
-    with tab1:
-        email_input = st.text_input("Email")
-        password_input = st.text_input("Password", type="password")
+st.title("Whimsical Sweets Operations Portal")
+st.write(f"Logged in as: **{session.current_user_email()}**")
+st.write(f"Role: **{session.current_user_role()}**")
 
-        if st.button("Log In", use_container_width=True):
-            found_user = None
-            for user in users:
-                if (
-                    user["email"].strip().lower() == email_input.strip().lower()
-                    and user["password"] == password_input
-                ):
-                    found_user = user
-                    break
-
-            if found_user:
-                st.session_state["logged_in"] = True
-                st.session_state["user"] = found_user
-                st.session_state["role"] = found_user["role"]
-                st.success(f"Welcome, {found_user['email']}!")
-                st.rerun()
-            else:
-                st.error("Invalid credentials.")
-
-    with tab2:
-        new_email = st.text_input("New Email")
-        new_password = st.text_input("New Password", type="password")
-        new_role = st.selectbox("Role", ["Shop Owner", "Employee"])
-        for user in users:
-            if new_email == user["email"]:
-                st.error("There is a user with this email already!")
-        if st.button("Create Account", use_container_width=True):
-            if new_email == '' or new_password == '':
-                st.error("Please fill out your information in order to register.")
-            else:
-                users.append({
-                    "id": str(uuid.uuid4()),
-                    "email": new_email,
-                    "password": new_password,
-                    "role": new_role
-                })
-            with users_path.open("w", encoding="utf-8") as f:
-                json.dump(users, f, indent=2)
-            st.success("Account created successfully.")
-            st.rerun()
-
-
-else:
-    st.title("Whimsical Sweets Operations Portal")
-    st.write(f"Logged in as: **{st.session_state['user']['email']}**")
-    st.write(f"Role: **{st.session_state['role']}**")
-
-    if st.button("Log Out"):
-        st.session_state["logged_in"] = False
-        st.session_state["user"] = None
-        st.session_state["role"] = None
-        st.rerun()
+if st.button("Log Out"):
+    session.logout()
+    st.rerun()
+    
 if st.session_state["role"] == "Shop Owner":
     tab1, tab2, tab3, tab4 = st.tabs([
             "View Catalog",
