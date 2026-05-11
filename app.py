@@ -9,7 +9,7 @@ from ui.auth_views import AuthView
 
 st.set_page_config(page_title="Whimsical Sweets Operations Portal", layout="centered")
 
-products_path = Path("products.json")
+products_path = Path("inventory.json")
 sales_path = Path("sales.json")
 
 if products_path.exists():
