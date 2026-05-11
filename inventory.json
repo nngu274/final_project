@@ -1,1 +1,29 @@
-[]
+[
+  {
+    "id": "p001",
+    "name": "Strawberry Shortcake Cupcake",
+    "category": "Cupcake",
+    "price": 4.5,
+    "stock": 12,
+    "shelf": "Front Display",
+    "low_stock_flag": false
+  },
+  {
+    "id": "p002",
+    "name": "Matcha Cream Puff",
+    "category": "Pastry",
+    "price": 5.25,
+    "stock": 4,
+    "shelf": "Pastry Case",
+    "low_stock_flag": true
+  },
+  {
+    "id": "p003",
+    "name": "Chocolate Cloud Cookie",
+    "category": "Cookie",
+    "price": 3.75,
+    "stock": 20,
+    "shelf": "Front Display",
+    "low_stock_flag": false
+  }
+]
