@@ -6,6 +6,7 @@ import uuid
 
 from ui.session_manager import SessionManager
 from ui.auth_views import AuthView
+from services.employee_service import calculate_low_stock, record_sale
 
 st.set_page_config(page_title="Whimsical Sweets Operations Portal", layout="centered")
 
@@ -162,35 +163,32 @@ elif st.session_state["role"] == "Employee":
                 quantity_sold = st.number_input("Quantity Sold", min_value=1, step=1)
 
                 if st.button("Record Sale"):
-                    for product in products:
-                        if product["name"] == sale_product_name:
-                            if quantity_sold <= product["stock"]:
-                                product["stock"] -= quantity_sold
 
-                                if product["stock"] <= 5:
-                                    product["low_stock_flag"] = True
+                    success, message = record_sale(
+                        products,
+                        sales_log,
+                        sale_product_name,
+                        quantity_sold
+                    )
 
-                                sales_log.append({
-                                    "id": str(uuid.uuid4()),
-                                    "product_name": product["name"],
-                                    "quantity_sold": quantity_sold,
-                                    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                                })
+                    if success:
 
-                                with products_path.open("w", encoding="utf-8") as f:
-                                    json.dump(products, f, indent=2)
-                                with sales_path.open("w", encoding="utf-8") as f:
-                                    json.dump(sales_log, f, indent=2)
-                                st.success("Sale recorded successfully.")
-                                st.rerun()
-                            else:
-                                st.error("Not enough stock available.")
-                                
+                        with products_path.open("w", encoding="utf-8") as f:
+                            json.dump(products, f, indent=2)
+
+                        with sales_path.open("w", encoding="utf-8") as f:
+                            json.dump(sales_log, f, indent=2)
+
+                        st.success(message)
+                        st.rerun()
+
+                    else:
+                        st.error(message)   
 
         with tab3:
             st.subheader("Flag Items Running Dangerously Low")
 
-            low_items = [p for p in products if p["stock"] <= 5]
+            low_items = calculate_low_stock(products)
 
             if low_items:
                 for item in low_items:
