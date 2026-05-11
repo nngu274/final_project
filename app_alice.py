@@ -240,7 +240,7 @@ elif st.session_state["role"] == "Employee":
             else:
                 st.success("No low-stock items right now.")
 
-         with tab4:
+        with tab4:
             st.subheader("New Employee Training")
             st.markdown("""
             ### Bakery Basics

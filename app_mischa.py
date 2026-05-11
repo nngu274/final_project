@@ -36,11 +36,24 @@ if sales_path.exists():
 else:
     sales_log = []
 
-def find_product_by_name(name):
+def delete_product(delete_name):
+    products[:] = [p for p in products if p["name"] != delete_name]
+    with products_path.open("w", encoding="utf-8") as f:
+        json.dump(products, f, indent=2)
+
+
+def update_product(selected_name, new_price, restock_amount):
     for product in products:
-        if product["name"] == name:
-            return product
-    return None
+        if product["name"] == selected_name:
+            product["price"] = new_price
+            product["stock"] += restock_amount
+            if product["stock"] > 5:
+                product["low_stock_flag"] = False
+            with products_path.open("w", encoding="utf-8") as f:
+                json.dump(products, f, indent=2)
+            return True
+    return False
+
 
 if not st.session_state["logged_in"]:
     st.title("Whimsical Sweets Operations Portal")
@@ -141,25 +154,18 @@ if st.session_state["role"] == "Shop Owner":
 
             if products:
                 selected_name = st.selectbox("Select Product", [p["name"] for p in products], key="owner_edit")
-                for product in products:
-                    if product["name"] == selected_name:
-                        product
-                    else:
-                        None
+                product = find_product_by_name(selected_name)
 
                 if product:
                     new_price = st.number_input("Update Price", min_value=0.0, value=float(product["price"]), step=0.25)
                     restock_amount = st.number_input("Restock Amount", min_value=0, step=1)
 
                     if st.button("Save Changes"):
-                        product["price"] = new_price
-                        product["stock"] += restock_amount
-                        if product["stock"] > 5:
-                            product["low_stock_flag"] = False
-                        with products_path.open("w", encoding="utf-8") as f:
-                            json.dump(products, f, indent=2)
-                        st.success("Product updated.")
-                        st.rerun()
+                        if update_product(selected_name, new_price, restock_amount):
+                            st.success("Product updated.")
+                            st.rerun()
+                        else:
+                            st.error("Could not update product.")
             else:
                 st.info("No products available to update.")
 
@@ -169,9 +175,7 @@ if st.session_state["role"] == "Shop Owner":
             if products:
                 delete_name = st.selectbox("Choose Product to Delete", [p["name"] for p in products], key="delete_product")
                 if st.button("Delete Product"):
-                    products[:] = [p for p in products if p["name"] != delete_name]
-                    with products_path.open("w", encoding="utf-8") as f:
-                        json.dump(products, f, indent=2)
+                    delete_product(delete_name)
                     st.success("Product deleted.")
                     st.rerun()
             else:
