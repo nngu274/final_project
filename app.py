@@ -127,6 +127,19 @@ if st.session_state["role"] == "Shop Owner":
                 st.info("No products available to delete.")
 
 elif st.session_state["role"] == "Employee":
+        st.header("Employee Dashboard")
+
+        low_stock_count = len([p for p in products if p.get("stock", 0) <= 5])
+        total_stock = sum([p.get("stock", 0) for p in products])
+        sales_count = len(sales_log)
+
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Products Available", len(products))
+        col2.metric("Low Stock Items", low_stock_count)
+        col3.metric("Sales Logged", sales_count)
+
+        st.divider()
+        
         tab1, tab2, tab3, tab4 = st.tabs([
             "View Catalog",
             "Log Sales",
