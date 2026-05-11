@@ -139,7 +139,7 @@ elif st.session_state["role"] == "Employee":
         col3.metric("Sales Logged", sales_count)
 
         st.divider()
-        
+
         tab1, tab2, tab3, tab4 = st.tabs([
             "View Catalog",
             "Log Sales",
@@ -150,7 +150,7 @@ elif st.session_state["role"] == "Employee":
         with tab1:
             st.subheader("Current Catalog")
             if products:
-                st.dataframe(products, use_container_width=True)
+                st.dataframe(products, width="stretch")
             else:
                 st.info("No products available.")
 
