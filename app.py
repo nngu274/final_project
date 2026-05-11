@@ -182,6 +182,7 @@ elif st.session_state["role"] == "Employee":
                                 with sales_path.open("w", encoding="utf-8") as f:
                                     json.dump(sales_log, f, indent=2)
                                 st.success("Sale recorded successfully.")
+                                st.rerun()
                             else:
                                 st.error("Not enough stock available.")
                                 
