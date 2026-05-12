@@ -3,10 +3,13 @@ import streamlit as st
 from datetime import datetime
 from pathlib import Path
 import uuid
+from dotenv import load_dotenv
+import os
 
 from ui.auth_views import AuthView
 from ui.session_manager import SessionManager
 from services.employee_service import calculate_low_stock, record_sale
+from services.ai_chat_service import AIChatService
 
 st.set_page_config(page_title="Whimsical Sweets Operations Portal", layout="centered")
 
@@ -87,6 +90,37 @@ st.write(f"Role: **{session.current_user_role()}**")
 if st.button("Log Out"):
     session.logout()
     st.rerun()
+
+st.sidebar.title("Navigation")
+main_section = st.sidebar.selectbox("Choose section", ["Operations", "AI Assistant"], key="main_section")
+
+if main_section == "AI Assistant":
+    if "ai_chat_history" not in st.session_state:
+        st.session_state["ai_chat_history"] = []
+
+    st.header("AI Operations Assistant")
+    st.write("Ask about products, stock, or inventory.")
+
+    with st.form("ai_chat_form", clear_on_submit=True):
+        question = st.text_input("Ask the assistant...", key="ai_question")
+        submitted = st.form_submit_button("Send")
+
+    if submitted and question:
+        ai_service = AIChatService()
+        response = ai_service.ask(question)
+        st.session_state["ai_chat_history"].append({"role": "user", "content": question})
+        st.session_state["ai_chat_history"].append({"role": "assistant", "content": response})
+
+    if st.session_state["ai_chat_history"]:
+        for message in st.session_state["ai_chat_history"]:
+            if message["role"] == "user":
+                st.markdown(f"**You:** {message['content']}")
+            else:
+                st.markdown(f"**Assistant:** {message['content']}")
+    else:
+        st.write("No messages yet. Ask a question to begin.")
+
+    st.stop()
 
 if st.session_state["role"] == "Shop Owner":
     st.subheader("Shop Owner Dashboard")
@@ -382,4 +416,3 @@ elif st.session_state["role"] == "Employee":
         - Keep display shelves neat and labeled correctly.
         - Report damaged or stale products to the Shop Owner.
         """)
-
