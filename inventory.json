@@ -4,7 +4,7 @@
     "name": "Strawberry Shortcake Cupcake",
     "category": "Cupcake",
     "price": 4.5,
-    "stock": 12,
+    "stock": 11,
     "shelf": "Front Display",
     "low_stock_flag": false
   },
@@ -13,7 +13,7 @@
     "name": "Matcha Cream Puff",
     "category": "Pastry",
     "price": 5.25,
-    "stock": 4,
+    "stock": 3,
     "shelf": "Pastry Case",
     "low_stock_flag": true
   },

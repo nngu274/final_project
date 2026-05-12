@@ -3,20 +3,22 @@ import streamlit as st
 from datetime import datetime
 from pathlib import Path
 import uuid
+import logging
+
+# Setup basic logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 from ui.auth_views import AuthView
 from ui.session_manager import SessionManager
-from services.ai_chat_service import AIChatService
 from pages.employee_dashboard import EmployeeDashboard
-
-import logging
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 st.set_page_config(page_title="Whimsical Sweets Operations Portal", layout="centered")
 
-products_path = Pth("inventory.json")
+products_path = Path("inventory.json")
 sales_path = Path("sales.json")
 
 
@@ -96,37 +98,6 @@ if st.button("Log Out"):
     logger.info(f"User {session.current_user_email()} logged out")
     session.logout()
     st.rerun()
-
-st.sidebar.title("Navigation")
-main_section = st.sidebar.selectbox("Choose section", ["Operations", "AI Assistant"], key="main_section")
-
-if main_section == "AI Assistant":
-    if "ai_chat_history" not in st.session_state:
-        st.session_state["ai_chat_history"] = []
-
-    st.header("AI Operations Assistant")
-    st.write("Ask about products, stock, or inventory.")
-
-    with st.form("ai_chat_form", clear_on_submit=True):
-        question = st.text_input("Ask the assistant...", key="ai_question")
-        submitted = st.form_submit_button("Send")
-
-    if submitted and question:
-        ai_service = AIChatService()
-        response = ai_service.ask(question)
-        st.session_state["ai_chat_history"].append({"role": "user", "content": question})
-        st.session_state["ai_chat_history"].append({"role": "assistant", "content": response})
-
-    if st.session_state["ai_chat_history"]:
-        for message in st.session_state["ai_chat_history"]:
-            if message["role"] == "user":
-                st.markdown(f"**You:** {message['content']}")
-            else:
-                st.markdown(f"**Assistant:** {message['content']}")
-    else:
-        st.write("No messages yet. Ask a question to begin.")
-
-    st.stop()
 
 if st.session_state["role"] == "Shop Owner":
     st.subheader("Shop Owner Dashboard")
@@ -352,6 +323,7 @@ if st.session_state["role"] == "Shop Owner":
             st.info("No products available to generate alerts.")
 
 elif st.session_state["role"] == "Employee":
+    # Initialize and render employee dashboard
     employee_dashboard = EmployeeDashboard(
         products=products,
         sales_log=sales_log,
@@ -360,4 +332,4 @@ elif st.session_state["role"] == "Employee":
         save_json_func=save_json
     )
     employee_dashboard.render()
-    
+

@@ -6,8 +6,7 @@ import uuid
 
 from ui.auth_views import AuthView
 from ui.session_manager import SessionManager
-from services.ai_chat_service import AIChatService
-from pages.employee_dashboard import EmployeeDashboard
+from services.employee_service import calculate_low_stock, record_sale
 
 import logging
 
@@ -16,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 st.set_page_config(page_title="Whimsical Sweets Operations Portal", layout="centered")
 
-products_path = Pth("inventory.json")
+products_path = Path("inventory.json")
 sales_path = Path("sales.json")
 
 
@@ -352,12 +351,74 @@ if st.session_state["role"] == "Shop Owner":
             st.info("No products available to generate alerts.")
 
 elif st.session_state["role"] == "Employee":
-    employee_dashboard = EmployeeDashboard(
-        products=products,
-        sales_log=sales_log,
-        products_path=products_path,
-        sales_path=sales_path,
-        save_json_func=save_json
-    )
-    employee_dashboard.render()
-    
+    st.header("Employee Dashboard")
+
+    low_stock_count = len([p for p in products if p.get("stock", 0) <= 5])
+    total_stock = sum([p.get("stock", 0) for p in products])
+    sales_count = len(sales_log)
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Products Available", len(products))
+    col2.metric("Low Stock Items", low_stock_count)
+    col3.metric("Sales Logged", sales_count)
+
+    st.divider()
+
+    tab1, tab2, tab3, tab4 = st.tabs([
+        "View Catalog",
+        "Log Sales",
+        "Flag Low Stock",
+        "Training"
+    ])
+
+    with tab1:
+        st.subheader("Current Catalog")
+        if products:
+            st.dataframe(products, width="stretch")
+        else:
+            st.info("No products available.")
+
+    with tab2:
+        st.subheader("Log Daily Sales")
+
+        if products:
+            sale_product_name = st.selectbox("Select Product Sold", [p["name"] for p in products], key="sale_product")
+            quantity_sold = st.number_input("Quantity Sold", min_value=1, step=1)
+
+            if st.button("Record Sale"):
+                success, message = record_sale(
+                    products,
+                    sales_log,
+                    sale_product_name,
+                    quantity_sold
+                )
+
+                if success:
+                    save_json(products_path, products)
+                    save_json(sales_path, sales_log)
+                    st.success(message)
+                    st.rerun()
+                else:
+                    st.error(message)
+
+    with tab3:
+        st.subheader("Flag Items Running Dangerously Low")
+
+        low_items = calculate_low_stock(products)
+        if low_items:
+            for item in low_items:
+                st.warning(f"{item['name']} is low on stock. Only {item['stock']} left.")
+        else:
+            st.success("No low-stock items right now.")
+
+    with tab4:
+        st.subheader("New Employee Training")
+        st.markdown("""
+        ### Bakery Basics
+        - Always rotate stock using first-in, first-out.
+        - Record sales accurately at the end of each shift.
+        - Flag low-stock items before they run out.
+        - Keep display shelves neat and labeled correctly.
+        - Report damaged or stale products to the Shop Owner.
+        """)
+

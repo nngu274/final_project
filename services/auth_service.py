@@ -1,3 +1,6 @@
+"""
+Authentication service for user management
+"""
 import json
 import uuid
 from pathlib import Path
@@ -5,19 +8,23 @@ from models.user import User
 
 USERS_PATH = Path("users.json")
 
-
 class AuthService:
+    """Handles user authentication and registration."""
+
     def load_users(self):
+        """Load users from JSON file."""
         if USERS_PATH.exists():
             with USERS_PATH.open("r", encoding="utf-8") as f:
                 return json.load(f)
         return []
 
     def save_users(self, users):
+        """Save users to JSON file."""
         with USERS_PATH.open("w", encoding="utf-8") as f:
             json.dump(users, f, indent=2)
 
     def login(self, email, password):
+        """Authenticate a user."""
         users = self.load_users()
         clean_email = email.strip().lower()
 
@@ -33,6 +40,7 @@ class AuthService:
         return None
 
     def register(self, email, password, role):
+        """Register a new user."""
         users = self.load_users()
         clean_email = email.strip().lower()
 

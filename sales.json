@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": "42dd1b66-3283-4da5-992c-532ddd24b3cd",
+    "product_name": "Matcha Cream Puff",
+    "quantity_sold": 1,
+    "timestamp": "2026-05-10 22:38:53"
+  },
+  {
+    "id": "9553d5cc-369c-4aca-bd47-cb5f4f778767",
+    "product_name": "Strawberry Shortcake Cupcake",
+    "quantity_sold": 1,
+    "timestamp": "2026-05-10 22:47:33"
+  }
+]
