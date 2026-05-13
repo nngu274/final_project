@@ -15,6 +15,24 @@ class AuthView:
         self.auth_service = AuthService()
 
     def render(self):
+        st.markdown(
+            """
+            <div style="
+                background-color:#fff7e6;
+                border:1px solid #ffd591;
+                border-radius:14px;
+                padding:16px;
+                margin-bottom:20px;
+            ">
+                <h4 style="margin-top:0;">Demo Logins</h4>
+                <p><strong>Shop Owner:</strong> user@udel.edu<br>
+                <strong>Password:</strong> MISY350</p>
+                <p><strong>Employee:</strong> employee@udel.edu<br>
+                <strong>Password:</strong> MISY350</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         """Render the authentication interface."""
         st.title("Whimsical Sweets Operations Portal")
 

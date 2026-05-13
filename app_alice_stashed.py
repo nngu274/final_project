@@ -16,7 +16,7 @@ from ui.auth_views import AuthView
 from ui.session_manager import SessionManager
 from pages.employee_dashboard import EmployeeDashboard
 
-st.set_page_config(page_title="Whimsical Sweets Operations Portal", layout="centered")
+st.set_page_config(page_title="Whimsical Sweets Operations Portal", layout="wide")
 
 products_path = Path("inventory.json")
 sales_path = Path("sales.json")
@@ -74,39 +74,31 @@ def sort_products(products, sort_key, ascending=True):
     return products
 
 
-products = load_json(products_path)
-sales_log = load_json(sales_path)
-
-session = SessionManager()
-session.initialize()
-
-if "owner_page" not in st.session_state:
-    st.session_state["owner_page"] = "Catalog"
-
-if not session.is_logged_in():
-    auth_view = AuthView(session)
-    auth_view.render()
-    st.stop()
-
-st.title("Whimsical Sweets Operations Portal")
-st.write(f"Logged in as: **{session.current_user_email()}**")
-st.write(f"Role: **{session.current_user_role()}**")
-
-logger.info(f"User {session.current_user_email()} ({session.current_user_role()}) accessed the dashboard")
-
-if st.button("Log Out"):
-    logger.info(f"User {session.current_user_email()} logged out")
-    session.logout()
-    st.rerun()
-
-if st.session_state["role"] == "Shop Owner":
+def render_owner_dashboard(products, products_path, save_json_func):
     st.subheader("Shop Owner Dashboard")
-    owner_pages = ["Catalog", "Add Product", "Update / Restock", "Delete Product", "Analytics", "Alerts"]
-    st.session_state["owner_page"] = st.selectbox("Choose Owner Page", owner_pages, index=owner_pages.index(st.session_state["owner_page"]))
+    st.write("Manage inventory and operations with the same clean, tabbed layout as the employee dashboard.")
+    st.divider()
 
-    current_page = st.session_state["owner_page"]
+    total_products = len(products)
+    low_stock_count = sum(1 for p in products if p.get("stock", 0) <= 5)
+    total_stock = sum(p.get("stock", 0) for p in products)
+    total_value = sum(p.get("price", 0.0) * p.get("stock", 0) for p in products)
 
-    if current_page == "Catalog":
+    st.write("### 📊 Dashboard Overview")
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Products Available", total_products)
+    col2.metric("Low Stock Items", low_stock_count, delta="⚠️" if low_stock_count else "✅")
+    col3.metric("Stock Units", total_stock)
+    col4.metric("Inventory Value", format_price(total_value))
+
+    if low_stock_count > 0:
+        st.warning(f"⚠️ {low_stock_count} products need restocking attention.")
+    else:
+        st.success("✅ Inventory levels look good.")
+
+    tabs = st.tabs(["Catalog", "Add Product", "Update / Restock", "Delete Product", "Analytics", "Alerts", "AI Assistant"])
+
+    with tabs[0]:
         st.markdown("### Catalog Overview")
         if products:
             categories = ["All"] + sorted({p["category"] for p in products if p.get("category")})
@@ -124,16 +116,16 @@ if st.session_state["role"] == "Shop Owner":
             filtered = filter_products(products, search_text, category_filter, shelf_filter)
             filtered = sort_products(filtered, sort_key, not sort_desc)
 
-            total_products = len(filtered)
-            low_stock_count = sum(1 for p in filtered if p.get("stock", 0) <= 5)
-            total_stock = sum(p.get("stock", 0) for p in filtered)
-            total_value = sum(p.get("price", 0.0) * p.get("stock", 0) for p in filtered)
+            total_filtered = len(filtered)
+            low_stock_filtered = sum(1 for p in filtered if p.get("stock", 0) <= 5)
+            total_stock_filtered = sum(p.get("stock", 0) for p in filtered)
+            total_value_filtered = sum(p.get("price", 0.0) * p.get("stock", 0) for p in filtered)
 
             col1, col2, col3, col4 = st.columns(4)
-            col1.metric("Products", total_products)
-            col2.metric("Low Stock", low_stock_count)
-            col3.metric("Stock Units", total_stock)
-            col4.metric("Inventory Value", format_price(total_value))
+            col1.metric("Products", total_filtered)
+            col2.metric("Low Stock", low_stock_filtered)
+            col3.metric("Stock Units", total_stock_filtered)
+            col4.metric("Inventory Value", format_price(total_value_filtered))
 
             st.divider()
             display_data = [
@@ -152,9 +144,9 @@ if st.session_state["role"] == "Shop Owner":
         else:
             st.info("No products found in inventory. Add a product to begin.")
 
-    elif current_page == "Add Product":
+    with tabs[1]:
         st.markdown("### Add New Product")
-        with st.form("add_product_form", clear_on_submit=True):
+        with st.form("owner_add_product_form", clear_on_submit=True):
             col1, col2 = st.columns(2)
             with col1:
                 name = st.text_input("Product Name", key="owner_add_name")
@@ -192,11 +184,11 @@ if st.session_state["role"] == "Shop Owner":
                         "low_stock_flag": stock <= 5,
                         "created_at": datetime.now().isoformat(),
                     })
-                    save_json(products_path, products)
+                    save_json_func(products_path, products)
                     st.success(f"Product '{name.strip()}' added successfully.")
                     st.info("Product is now available in the Catalog tab.")
 
-    elif current_page == "Update / Restock":
+    with tabs[2]:
         st.markdown("### Update or Restock a Product")
         if products:
             product_map = {product_option_label(p): p["id"] for p in products}
@@ -213,7 +205,7 @@ if st.session_state["role"] == "Shop Owner":
                 st.write(f"- Shelf: {selected_product['shelf']}")
                 st.write(f"- Low Stock: {'Yes' if selected_product.get('stock', 0) <= 5 else 'No'}")
 
-                with st.form("update_product_form"):
+                with st.form("owner_update_product_form"):
                     new_price = st.number_input("New Price ($)", min_value=0.0, value=float(selected_product["price"]), step=0.25, format="%.2f", key="owner_update_price")
                     restock_amount = st.number_input("Restock Amount", min_value=0, value=0, step=1, key="owner_restock_amount")
                     submitted = st.form_submit_button("Save Changes")
@@ -225,7 +217,7 @@ if st.session_state["role"] == "Shop Owner":
                             selected_product["price"] = new_price
                             selected_product["stock"] = selected_product.get("stock", 0) + restock_amount
                             selected_product["low_stock_flag"] = selected_product["stock"] <= 5
-                            save_json(products_path, products)
+                            save_json_func(products_path, products)
                             st.success("Product updated successfully.")
                             st.write(f"- New Price: {format_price(new_price)}")
                             st.write(f"- New Stock: {selected_product['stock']}")
@@ -238,7 +230,7 @@ if st.session_state["role"] == "Shop Owner":
         else:
             st.info("No products available to update.")
 
-    elif current_page == "Delete Product":
+    with tabs[3]:
         st.markdown("### Delete Discontinued Product")
         if products:
             product_map = {product_option_label(p): p["id"] for p in products}
@@ -260,7 +252,7 @@ if st.session_state["role"] == "Shop Owner":
                         st.warning("Please confirm deletion before proceeding.")
                     else:
                         products[:] = [p for p in products if p["id"] != selected_id]
-                        save_json(products_path, products)
+                        save_json_func(products_path, products)
                         st.success(f"Product '{selected_product['name']}' deleted.")
                         st.info("Check the Catalog tab to verify removal.")
             else:
@@ -268,7 +260,7 @@ if st.session_state["role"] == "Shop Owner":
         else:
             st.info("No products available to delete.")
 
-    elif current_page == "Analytics":
+    with tabs[4]:
         st.markdown("### Inventory Analytics")
         if products:
             total_products = len(products)
@@ -306,7 +298,7 @@ if st.session_state["role"] == "Shop Owner":
         else:
             st.info("No inventory data available.")
 
-    elif current_page == "Alerts":
+    with tabs[5]:
         st.markdown("### Alerts & Recommendations")
         threshold = st.number_input("Low stock threshold", min_value=1, value=5, step=1, key="owner_alert_threshold")
         if products:
@@ -321,6 +313,115 @@ if st.session_state["role"] == "Shop Owner":
                 st.success("No current alerts. Inventory is above threshold.")
         else:
             st.info("No products available to generate alerts.")
+    with tabs[6]:
+        st.markdown("### 🤖 AI Operations Assistant")
+        st.write("Ask Robo about products, stock, inventory, or sales.")
+
+        if "fake_ai_chat_history" not in st.session_state:
+            st.session_state["fake_ai_chat_history"] = [
+                {
+                    "role": "assistant",
+                    "content": "Hi! I’m Robo, your Whimsical Sweets assistant. Ask me about products, stock, or inventory."
+                }
+            ]
+
+        for message in st.session_state["fake_ai_chat_history"]:
+            if message["role"] == "user":
+                st.markdown(
+                    f"""
+                    <div style="
+                        background-color:#e6f4ff;
+                        padding:14px;
+                        border-radius:18px;
+                        margin:10px 0;
+                        max-width:75%;
+                        margin-left:auto;
+                        border:1px solid #cce7ff;
+                    ">
+                        <strong>🙋 You</strong><br>
+                        {message["content"]}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+            else:
+                st.markdown(
+                    f"""
+                    <div style="
+                        background-color:#f7f1ff;
+                        padding:14px;
+                        border-radius:18px;
+                        margin:10px 0;
+                        max-width:75%;
+                        border:1px solid #e4d4ff;
+                    ">
+                        <strong>🤖 Robo</strong><br>
+                        {message["content"]}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+        with st.form("fake_ai_chat_form", clear_on_submit=True):
+            user_question = st.text_input(
+                "Ask Robo something:",
+                placeholder="Example: What items are low stock?"
+            )
+            submitted = st.form_submit_button("Send")
+
+        if submitted and user_question:
+            st.session_state["fake_ai_chat_history"].append({
+                "role": "user",
+                "content": user_question
+            })
+
+            question = user_question.lower()
+
+            if "low" in question or "restock" in question:
+                fake_response = "Demo response: Matcha Cream Puff is currently low on stock and may need to be restocked soon."
+            elif "product" in question or "inventory" in question or "catalog" in question:
+                fake_response = "Demo response: The catalog includes cupcakes, pastries, and cookies. You can view full inventory in the Catalog tab."
+            elif "sales" in question:
+                fake_response = "Demo response: Sales tracking is available in the employee dashboard. A future version could summarize total sales here."
+            elif "help" in question:
+                fake_response = "Demo response: I can help with inventory questions, low-stock reminders, product lookup, and sales summaries."
+            else:
+                fake_response = "Demo response: This is a safe chatbot interface preview. The real AI connection is turned off for security reasons."
+
+            st.session_state["fake_ai_chat_history"].append({
+                "role": "assistant",
+                "content": fake_response
+            })
+
+            st.rerun()
+
+products = load_json(products_path)
+sales_log = load_json(sales_path)
+
+session = SessionManager()
+session.initialize()
+
+if "owner_page" not in st.session_state:
+    st.session_state["owner_page"] = "Catalog"
+
+if not session.is_logged_in():
+    auth_view = AuthView(session)
+    auth_view.render()
+    st.stop()
+
+st.title("Whimsical Sweets Operations Portal")
+st.write(f"Logged in as: **{session.current_user_email()}**")
+st.write(f"Role: **{session.current_user_role()}**")
+
+logger.info(f"User {session.current_user_email()} ({session.current_user_role()}) accessed the dashboard")
+
+if st.button("Log Out"):
+    logger.info(f"User {session.current_user_email()} logged out")
+    session.logout()
+    st.rerun()
+
+if st.session_state["role"] == "Shop Owner":
+    render_owner_dashboard(products, products_path, save_json)
 
 elif st.session_state["role"] == "Employee":
     # Initialize and render employee dashboard
