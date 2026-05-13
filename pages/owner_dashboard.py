@@ -310,15 +310,20 @@ def render_owner_dashboard(products, products_path, save_json_func):
             question = user_question.lower()
 
             if "low" in question or "restock" in question:
-                fake_response = "Demo response: Matcha Cream Puff is currently low on stock and may need to be restocked soon."
+                fake_response = "Sorry, I cannot generate a live AI response right now because the OpenAI API key is missing. "
+                "The chatbot structure is still set up correctly with the hidden prompt, chat history, and JSON data connection."
             elif "product" in question or "inventory" in question or "catalog" in question:
-                fake_response = "Demo response: The catalog includes cupcakes, pastries, and cookies. You can view full inventory in the Catalog tab."
+                fake_response = "Sorry, I cannot generate a live AI response right now because the OpenAI API key is missing. "
+                "The chatbot structure is still set up correctly with the hidden prompt, chat history, and JSON data connection."
             elif "sales" in question:
-                fake_response = "Demo response: Sales tracking is available in the employee dashboard. A future version could summarize total sales here."
+                fake_response = "Sorry, I cannot generate a live AI response right now because the OpenAI API key is missing. "
+                "The chatbot structure is still set up correctly with the hidden prompt, chat history, and JSON data connection."
             elif "help" in question:
-                fake_response = "Demo response: I can help with inventory questions, low-stock reminders, product lookup, and sales summaries."
+                fake_response = "Sorry, I cannot generate a live AI response right now because the OpenAI API key is missing. "
+                "The chatbot structure is still set up correctly with the hidden prompt, chat history, and JSON data connection."
             else:
-                fake_response = "Demo response: This is a safe chatbot interface preview. The real AI connection is turned off for security reasons."
+                fake_response = "Sorry, I cannot generate a live AI response right now because the OpenAI API key is missing. "
+                "The chatbot structure is still set up correctly with the hidden prompt, chat history, and JSON data connection."
 
             st.session_state["fake_ai_chat_history"].append({
                 "role": "assistant",
