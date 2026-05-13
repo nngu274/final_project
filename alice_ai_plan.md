@@ -12,7 +12,7 @@ The application is a Streamlit-based operations portal for "Whimsical Sweets", a
 - **Main UI**: `app.py` - Contains the primary Streamlit interface with role-based dashboards. For employees, it provides tabs for catalog viewing, sales logging, low stock flagging, and training.
 - **Authentication UI**: `ui/auth_views.py` - Handles login and registration forms using Streamlit components.
 - **Session Management**: `ui/session_manager.py` - Manages user session state, login status, and role permissions within Streamlit's session state.
-- **Additional Pages**: `pages/3_AI_Assistant.py` - Appears to be an AI assistant page, potentially accessible to employees for support.
+
 
 ### Service Layer
 - **Authentication Service**: `services/auth_service.py` - Manages user authentication, registration, and user data persistence to `users.json`.

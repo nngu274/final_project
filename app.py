@@ -4,7 +4,16 @@ from datetime import datetime
 from pathlib import Path
 import uuid
 import logging
-
+import os
+import streamlit as st
+from dotenv import load_dotenv
+from services.ai_chatbot import (
+    ProductDataStore,
+    ChatLoggerStore,
+    WhimsicalSweetsAssistantBot,
+    render_ai_chatbot
+)
+from services.ai_chatbot import render_ai_chatbot
 # Setup basic logging
 logging.basicConfig(
     level=logging.INFO,
@@ -314,86 +323,13 @@ def render_owner_dashboard(products, products_path, save_json_func):
         else:
             st.info("No products available to generate alerts.")
     with tabs[6]:
-        st.markdown("### 🤖 AI Operations Assistant")
-        st.write("Ask Robo about products, stock, inventory, or sales.")
-
-        if "fake_ai_chat_history" not in st.session_state:
-            st.session_state["fake_ai_chat_history"] = [
-                {
-                    "role": "assistant",
-                    "content": "Hi! I’m Robo, your Whimsical Sweets assistant. Ask me about products, stock, or inventory."
-                }
-            ]
-
-        for message in st.session_state["fake_ai_chat_history"]:
-            if message["role"] == "user":
-                st.markdown(
-                    f"""
-                    <div style="
-                        background-color:#e6f4ff;
-                        padding:14px;
-                        border-radius:18px;
-                        margin:10px 0;
-                        max-width:75%;
-                        margin-left:auto;
-                        border:1px solid #cce7ff;
-                    ">
-                        <strong>🙋 You</strong><br>
-                        {message["content"]}
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-            else:
-                st.markdown(
-                    f"""
-                    <div style="
-                        background-color:#f7f1ff;
-                        padding:14px;
-                        border-radius:18px;
-                        margin:10px 0;
-                        max-width:75%;
-                        border:1px solid #e4d4ff;
-                    ">
-                        <strong>🤖 Robo</strong><br>
-                        {message["content"]}
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-        with st.form("fake_ai_chat_form", clear_on_submit=True):
-            user_question = st.text_input(
-                "Ask Robo something:",
-                placeholder="Example: What items are low stock?"
-            )
-            submitted = st.form_submit_button("Send")
-
-        if submitted and user_question:
-            st.session_state["fake_ai_chat_history"].append({
-                "role": "user",
-                "content": user_question
-            })
-
-            question = user_question.lower()
-
-            if "low" in question or "restock" in question:
-                fake_response = "Demo response: Matcha Cream Puff is currently low on stock and may need to be restocked soon."
-            elif "product" in question or "inventory" in question or "catalog" in question:
-                fake_response = "Demo response: The catalog includes cupcakes, pastries, and cookies. You can view full inventory in the Catalog tab."
-            elif "sales" in question:
-                fake_response = "Demo response: Sales tracking is available in the employee dashboard. A future version could summarize total sales here."
-            elif "help" in question:
-                fake_response = "Demo response: I can help with inventory questions, low-stock reminders, product lookup, and sales summaries."
-            else:
-                fake_response = "Demo response: This is a safe chatbot interface preview. The real AI connection is turned off for security reasons."
-
-            st.session_state["fake_ai_chat_history"].append({
-                "role": "assistant",
-                "content": fake_response
-            })
-
-            st.rerun()
+        render_ai_chatbot(
+            session_key="owner_ai_messages",
+            log_file="owner_chat_logs.json",
+            title="🤖 AI Operations Assistant",
+            subtitle="Ask Robo about products, stock, inventory, prices, or sales.",
+            starter_message="Hi! I’m Robo, your Whimsical Sweets assistant. Ask me about products, stock, inventory, prices, or sales."
+        )
 
 products = load_json(products_path)
 sales_log = load_json(sales_path)

@@ -1,0 +1,6 @@
+[
+  {
+    "user_message": "What is the inventory?",
+    "assistant_message": "Sorry, I cannot generate a live AI response right now because the OpenAI API key is missing, invalid, or not active. The chatbot structure is still set up correctly with the hidden prompt, chat history, and JSON data connection."
+  }
+]
