@@ -47,9 +47,14 @@ class ChatLoggerStore:
 
 class WhimsicalSweetsAssistantBot:
     def __init__(self, api_key: str, products_context: str, sales_context: str):
-        self.client = OpenAI(api_key=api_key)
+        self.api_key = api_key
         self.products_context = products_context
         self.sales_context = sales_context
+
+        if api_key:
+            self.client = OpenAI(api_key=api_key)
+        else:
+            self.client = None
 
     def build_ai_prompt(self) -> str:
         return (
@@ -63,6 +68,12 @@ class WhimsicalSweetsAssistantBot:
         )
 
     def get_ai_response(self, chat_history: list) -> str:
+        if self.client is None:
+            return (
+                "Sorry, I cannot generate a live AI response right now because the OpenAI API key is missing. "
+                "The chatbot structure is still set up correctly with the hidden prompt, chat history, and JSON data connection."
+            )
+
         try:
             ai_prompt = self.build_ai_prompt()
 
