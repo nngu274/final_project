@@ -10,5 +10,17 @@
     "product_name": "Strawberry Shortcake Cupcake",
     "quantity_sold": 1,
     "timestamp": "2026-05-10 22:47:33"
+  },
+  {
+    "id": "e0029c61-29d4-4078-bba1-bfb3ac19863c",
+    "product_name": "Strawberry Shortcake Cupcake",
+    "quantity_sold": 1,
+    "timestamp": "2026-05-12 23:23:46"
+  },
+  {
+    "id": "a173b0e8-e7b8-452e-80b2-39e22692f3a3",
+    "product_name": "Strawberry Shortcake Cupcake",
+    "quantity_sold": 1,
+    "timestamp": "2026-05-12 23:23:57"
   }
 ]

@@ -472,17 +472,19 @@ class EmployeeDashboard:
                     help="Please verify all details before submitting"
                 )
 
-                # Submit button
-                submit_disabled = not confirm_sale or quantity > current_stock
+                # Submit button (always enabled so users can press it)
                 submitted = st.form_submit_button(
                     "📝 Record Sale",
-                    type="primary",
-                    disabled=submit_disabled,
                     use_container_width=True
                 )
 
-                if submitted and confirm_sale:
-                    self._handle_sale_recording(selected_product_name, quantity, notes)
+                if submitted:
+                    if quantity > current_stock:
+                        st.error(f"❌ Cannot sell {quantity} units. Only {current_stock} available.")
+                    elif not confirm_sale:
+                        st.error("❌ Please confirm the sale information before submitting.")
+                    else:
+                        self._handle_sale_recording(selected_product_name, quantity, notes)
 
     def _handle_sale_recording(self, product_name, quantity_sold, notes=""):
         """Handle the sale recording process with enhanced feedback and loading states."""
@@ -545,19 +547,26 @@ class EmployeeDashboard:
         """Render the interactive training tab with quiz and progress tracking."""
         st.subheader("🎓 Employee Training Center")
 
-        # Training tabs for different modules
-        training_tabs = st.tabs(["📚 Guidelines", "🎯 Knowledge Quiz", "📈 Progress", "🏆 Achievements"])
+        # Ensure training tab selection state exists
+        training_sections = ["📚 Guidelines", "🎯 Knowledge Quiz", "📈 Progress", "🏆 Achievements"]
+        if "training_tab_selector" not in st.session_state:
+            st.session_state["training_tab_selector"] = training_sections[0]
 
-        with training_tabs[0]:
+        selected_training_tab = st.radio(
+            "Choose training section",
+            training_sections,
+            index=training_sections.index(st.session_state["training_tab_selector"]),
+            horizontal=True,
+            key="training_tab_selector"
+        )
+
+        if selected_training_tab == training_sections[0]:
             self._render_training_guidelines()
-
-        with training_tabs[1]:
+        elif selected_training_tab == training_sections[1]:
             self._render_training_quiz()
-
-        with training_tabs[2]:
+        elif selected_training_tab == training_sections[2]:
             self._render_training_progress()
-
-        with training_tabs[3]:
+        else:
             self._render_training_achievements()
 
     def _render_training_guidelines(self):
@@ -593,10 +602,7 @@ class EmployeeDashboard:
 
         # Acknowledgment checkbox
         if st.checkbox("✅ I have read and understood the training guidelines", key="guidelines_ack"):
-            st.success("🎉 Guidelines reviewed! Ready for the quiz?")
-            if st.button("Take the Knowledge Quiz", type="primary"):
-                st.session_state["training_active_tab"] = 1  # Switch to quiz tab
-                st.rerun()
+            st.success("🎉 Guidelines reviewed! You can now take the quiz using the Training section tabs.")
         else:
             st.info("📖 Please read through all guidelines and check the box when done.")
 

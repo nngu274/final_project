@@ -4,7 +4,7 @@
     "name": "Strawberry Shortcake Cupcake",
     "category": "Cupcake",
     "price": 4.5,
-    "stock": 11,
+    "stock": 9,
     "shelf": "Front Display",
     "low_stock_flag": false
   },
@@ -24,6 +24,60 @@
     "price": 3.75,
     "stock": 20,
     "shelf": "Front Display",
+    "low_stock_flag": false
+  },
+  {
+    "id": "p004",
+    "name": "Blueberry Lemon Tart",
+    "category": "Tart",
+    "price": 6.5,
+    "stock": 7,
+    "shelf": "Display Case",
+    "low_stock_flag": false
+  },
+  {
+    "id": "p005",
+    "name": "Cinnamon Swirl Danish",
+    "category": "Pastry",
+    "price": 4.0,
+    "stock": 12,
+    "shelf": "Pastry Case",
+    "low_stock_flag": false
+  },
+  {
+    "id": "p006",
+    "name": "Vanilla Bean Macaron",
+    "category": "Cookie",
+    "price": 2.25,
+    "stock": 15,
+    "shelf": "Front Display",
+    "low_stock_flag": false
+  },
+  {
+    "id": "p007",
+    "name": "Salted Caramel Brownie",
+    "category": "Brownie",
+    "price": 4.75,
+    "stock": 5,
+    "shelf": "Back Counter",
+    "low_stock_flag": true
+  },
+  {
+    "id": "p008",
+    "name": "Almond Croissant",
+    "category": "Pastry",
+    "price": 4.95,
+    "stock": 8,
+    "shelf": "Pastry Case",
+    "low_stock_flag": false
+  },
+  {
+    "id": "p009",
+    "name": "Raspberry Cheesecake Slice",
+    "category": "Cake",
+    "price": 5.95,
+    "stock": 6,
+    "shelf": "Display Case",
     "low_stock_flag": false
   }
 ]
