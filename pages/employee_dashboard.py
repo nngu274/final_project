@@ -4,7 +4,15 @@ Handles all employee workflow UI components
 """
 import streamlit as st
 from services.employee_service import calculate_low_stock, record_sale
-
+import os
+import streamlit as st
+from dotenv import load_dotenv
+from services.ai_chatbot import (
+    ProductDataStore,
+    ChatLoggerStore,
+    WhimsicalSweetsAssistantBot
+)
+from services.ai_chatbot import render_ai_chatbot
 class EmployeeDashboard:
     """Employee dashboard with catalog viewing, sales logging, and training."""
 
@@ -1080,86 +1088,10 @@ class EmployeeDashboard:
             st.success("Issue reported to management.")
 
     def _render_ai_assistant_tab(self):
-        """Render a safe fake AI assistant interface for employees."""
-        st.subheader("🤖 AI Operations Assistant")
-        st.write("Ask Robo about products, stock, inventory, or sales.")
-
-        if "employee_fake_ai_chat_history" not in st.session_state:
-            st.session_state["employee_fake_ai_chat_history"] = [
-                {
-                    "role": "assistant",
-                    "content": "Hi! I’m Robo, your Whimsical Sweets assistant. Ask me about products, stock, sales, or inventory."
-                }
-            ]
-
-        for message in st.session_state["employee_fake_ai_chat_history"]:
-            if message["role"] == "user":
-                st.markdown(
-                    f"""
-                    <div style="
-                        background-color:#e6f4ff;
-                        padding:14px;
-                        border-radius:18px;
-                        margin:10px 0;
-                        max-width:75%;
-                        margin-left:auto;
-                        border:1px solid #cce7ff;
-                    ">
-                        <strong>🙋 You</strong><br>
-                        {message["content"]}
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-            else:
-                st.markdown(
-                    f"""
-                    <div style="
-                        background-color:#f7f1ff;
-                        padding:14px;
-                        border-radius:18px;
-                        margin:10px 0;
-                        max-width:75%;
-                        border:1px solid #e4d4ff;
-                    ">
-                        <strong>🤖 Robo</strong><br>
-                        {message["content"]}
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-        with st.form("employee_fake_ai_chat_form", clear_on_submit=True):
-            user_question = st.text_input(
-                "Ask Robo something:",
-                placeholder="Example: What items are low stock?"
-            )
-            submitted = st.form_submit_button("Send")
-
-        if submitted and user_question:
-            st.session_state["employee_fake_ai_chat_history"].append({
-                "role": "user",
-                "content": user_question
-            })
-
-            question = user_question.lower()
-
-            if "low" in question or "restock" in question:
-                fake_response = "Demo response: Matcha Cream Puff is currently low on stock and may need restocking soon."
-            elif "product" in question or "inventory" in question or "catalog" in question:
-                fake_response = "Demo response: The catalog includes cupcakes, pastries, and cookies. You can view full inventory in the Catalog tab."
-            elif "sales" in question or "sold" in question:
-                fake_response = "Demo response: You can log sales in the Log Sales tab. A future version could summarize recent sales here."
-            elif "alert" in question:
-                fake_response = "Demo response: You can check the Alerts tab to review low-stock or fast-selling item warnings."
-            elif "help" in question:
-                fake_response = "Demo response: I can help employees with product lookup, low-stock reminders, sales logging guidance, and alerts."
-            else:
-                fake_response = "Demo response: This is a safe chatbot interface preview. The real AI connection is turned off for security reasons."
-
-            st.session_state["employee_fake_ai_chat_history"].append({
-                "role": "assistant",
-                "content": fake_response
-            })
-
-            st.rerun()
+        render_ai_chatbot(
+    session_key="employee_ai_messages",
+    log_file="employee_chat_logs.json",
+    title="AI Shop Assistant",
+    subtitle="Ask questions about inventory, products, prices, and sales.",
+    starter_message="Hi! Ask me a question about inventory, products, prices, or sales."
+)
